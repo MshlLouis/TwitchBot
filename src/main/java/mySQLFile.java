@@ -3,6 +3,7 @@ import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 import com.github.twitch4j.chat.events.channel.UserBanEvent;
 import com.github.twitch4j.chat.events.channel.UserTimeoutEvent;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.sql.*;
@@ -244,12 +245,31 @@ public class mySQLFile {
         c.commit();
     }
 
-    public static void main( String args[] ) throws SQLException {
+    private static Connection establishConnection() throws IOException {
 
-//        createMainTable(mainFile.c, null, "chatlogs1");
-//        createIDTable(mainFile.c, null);
-//        createSubsAndCheersTable(mainFile.c, null);
-//        createTimeoutsAndBansTable(mainFile.c, null);
+        Connection c = null;
+        mainFile.setCredentials();
+
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver").newInstance();
+            c = DriverManager
+                    .getConnection("jdbc:mysql://"+mainFile.databaseURL,
+                            mainFile.databaseUsername,mainFile.databasePassword);
+            c.setAutoCommit(false);
+            System.out.println("Established connection successfully");
+        } catch ( Exception e ) {
+            System.err.println( e.getClass().getName()+": "+ e.getMessage() );
+        }
+        return c;
+    }
+
+    public static void main( String args[] ) throws SQLException, IOException {
+
+        Connection c = establishConnection();
+        createMainTable(c, null, "chatlogs1");
+        createIDTable(c, null);
+        createSubsAndCheersTable(c, null);
+        createTimeoutsAndBansTable(c, null);
 
     }
 }
