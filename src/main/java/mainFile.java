@@ -52,7 +52,7 @@ public class mainFile {
     static String [] blockedUsersForSubs = {"43325871","237719657","1564983"};
     static boolean containsBlockedUser = false;
 
-    public void setCredentials() throws IOException {
+    public static void setCredentials() throws IOException {
         ArrayList<String> list = new ArrayList<>();
         BufferedReader br = new BufferedReader(new FileReader("credentials.txt"));
         String line;
@@ -348,15 +348,6 @@ public class mainFile {
         return allActiveUsers.size();
     }
 
-    public void getAllActiveUsers() throws IOException {
-        BufferedReader br = new BufferedReader(new FileReader(String.valueOf("allActiveUsers.txt")));
-        String line;
-
-        while ((line = br.readLine()) != null) {
-            allActiveUsers.add(line);
-        }
-    }
-
     public boolean checkJoinedStatus(String channelName) {
         for (String s : joinedChannels) {
             if(s.equals(channelName)) {
@@ -479,7 +470,7 @@ public class mainFile {
         mainFile object = new mainFile();
 
         try {
-            object.setCredentials();
+            setCredentials();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -492,11 +483,6 @@ public class mainFile {
         threadCheckChannelIDs();
         startTimestamp = System.currentTimeMillis();
         object.get10SecondAverageEndless();
-        try {
-            object.getAllActiveUsers();
-        } catch (IOException e) {
-            System.out.println("No file for active viewers found, probably running the bot for the first time!");
-        }
 
         try {
             Class.forName("com.mysql.cj.jdbc.Driver").newInstance();
