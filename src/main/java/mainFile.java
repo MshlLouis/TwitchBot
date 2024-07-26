@@ -579,7 +579,12 @@ public class mainFile {
             System.err.println( e.getClass().getName()+": "+ e.getMessage() );
         }
 
-        String commands = "start (st), join (j), leave (l), joined (jd), search (s), searchAll (sA), track (t), cancelTrack (cT), trackStatus (tS), 10AVG (avg), addHours (aH), setPrefix (sP), totalViewers (tV), totalMessages (tM), uptime (ut), setavglimit (sal), getUserSize (gus), commands (cmds), info, help (h)";
+        String commands = "start (st), join (j), leave (l), joined (jd), search (s), " +
+                "searchAll (sA), track (t), cancelTrack (cT), trackStatus (tS), 10AVG (avg), " +
+                "addHours (aH), setPrefix (sP), totalViewers (tV), totalMessages (tM), uptime (ut), " +
+                "setavglimit (sal), getUserSize (gus), getLastMessageCount (glmc), " +
+                "setLastMessageTimer (slmt), printConcurrentModException (pcme), " +
+                "commands (cmds), info, help (h)";
         System.out.println("Currently using +1 hour time addition. Use " +prefix +"addHours to adjust!\nCurrent prefix is \"" +prefix +"\"\nLimit for Average Messages per Second set to 75");
 
         Thread t1 = new Thread(new Runnable(){
