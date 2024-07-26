@@ -683,8 +683,6 @@ public class mainFile {
                                         "join [channel1,channel2,channel3...]: join specified channels\n" +
                                         "leave [channel]: leave specified channel\n" +
                                         "joined: show joined channels\n" +
-                                        "search [username] [channel]: creates file in folder 'userLogs' with users messages in channel\n" +
-                                        "searchAll [username]: creates file in folder 'userLogs' with user messages across all joined channels\n" +
                                         "track [username]: track user across all joined channels\n" +
                                         "cancelTrack: cancels tracking\n" +
                                         "trackStatus: prints current track status\n" +
