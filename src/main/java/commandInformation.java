@@ -11,10 +11,6 @@ public class commandInformation {
                 return leave();
             case "joined":
                 return joined();
-            case "search":
-                return search();
-            case "searchAll":
-                return searchAll();
             case "track":
                 return track();
             case "cancelTrack":
@@ -66,14 +62,6 @@ public class commandInformation {
     public String joined() {
         return "Syntax: " +mainFile.prefix +"joined\n"
                 +"This command is used to see what channels have been joined plus the total number.";
-    }
-    public String search() {
-        return "Syntax: " +mainFile.prefix +"search [username] [channel]\n"
-                +"This command is used to search for a given usernames messages in a specific channel.";
-    }
-    public String searchAll() {
-        return "Syntax: " +mainFile.prefix +"searchAll [username]\n"
-                +"This command is used to search for a given usernames messages across all joined channels.";
     }
     public String track() {
         return "Syntax: " +mainFile.prefix +"track [username]\n"
