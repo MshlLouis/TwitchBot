@@ -232,7 +232,7 @@ public class mainFile {
         twitchClient.getEventManager().onEvent(UserBanEvent.class, event -> {
 
             String [] arr = lastMessages.get(event.getUser().getId());
-
+            String out;
             if(arr == null) {
                 try {
                     mySQLFile.insertBanData(c, event, "[#No last message#]");
@@ -470,8 +470,7 @@ public class mainFile {
             c.setAutoCommit(false);
             System.out.println("Opened database successfully");
         } catch (Exception e) {
-            e.printStackTrace();
-            System.exit(1);
+            throw new RuntimeException(e);
         }
 
         object.printChat(twitchClient);
