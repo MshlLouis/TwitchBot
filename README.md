@@ -28,7 +28,7 @@ Next, create a database online. The next three inputs in your file MUST BE:
 5. Username
 6. Password
 
-Finally, create a table using the method "createMainTable" in mySQLFile and name it "chatlogs1" (i have absolutely zero clue whether it works with a different name and again, I'm lazy).
+Finally, create the required tables using the file "mySQLFile.java". The files main method provides all 4 method calls (Don't change the name "chatlogs1", I have absolutely zero clue whether it works with a different name and again, I'm lazy).
 
 
 ## 3: Running
