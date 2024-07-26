@@ -1,4 +1,4 @@
-# A Bot for Twitch that allows the user to connect to Twitch Channels to read Chat, Timeouts/Bans and Subscriptions/Bit-Cheers. Saves all these events to a database.
+# A Bot for Twitch that allows the user to connect to Twitch Channels to read Chat, Timeouts/Bans and Subscriptions/Bit-Cheers. Saves all these events to a Database.
 
 
 ## 1: Requirements
