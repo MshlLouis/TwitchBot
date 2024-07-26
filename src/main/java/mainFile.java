@@ -9,7 +9,6 @@ import com.github.twitch4j.helix.domain.StreamList;
 import com.github.twitch4j.helix.domain.UserList;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -546,12 +545,6 @@ public class mainFile {
                                             "sodapoppin,sparkofphoenixtv,stegi,summit1g,tanzverbot," +
                                             "therealknossi,tobifas_,trainwreckstv,trymacs,unsympathisch_tv," +
                                             "wichtiger,xqc,xrohat,xthesolutiontv,zackrawrr,zarbex,zastela";
-                                    try {
-                                        mySQLFile.createMainTable(c, stmt, "chatlogs2");
-                                        mySQLFile.createIDTable(c, stmt);
-                                    } catch (SQLException throwables) {
-                                        System.out.println("Table already exists!");
-                                    }
                                     try {
                                         joinChannel(twitchClient, pref, object);
                                     } catch (SQLException throwables) {
