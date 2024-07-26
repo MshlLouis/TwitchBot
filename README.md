@@ -3,7 +3,7 @@
 
 ## 1: Requirements
 
-- IDE
+- IDE + Gradle v6.8+
 - Online Database
 - Twitch Account
 
