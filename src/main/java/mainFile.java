@@ -441,74 +441,6 @@ public class mainFile {
         t3.start();
     }
 
-    public void searchAndSaveUserMessages(TwitchClient twitchClient, String [] data) {
-
-        Thread t2 = new Thread(() -> {
-
-            String username = data[1];
-
-            if(allActiveUsers.contains(getUserID(twitchClient, username))) {
-                String path = "userLogs/" +getUserID(twitchClient, username) +".txt";
-
-                BufferedWriter bw;
-                int counter = 0;
-
-                try {
-                    bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("searchedUsers/" +username +" in " +data[2] +".txt"), StandardCharsets.UTF_8));
-
-                    BufferedReader br = new BufferedReader(new FileReader(String.valueOf(path)));
-                    String line;
-
-                    while ((line = br.readLine()) != null) {
-                        if(line.contains("[" +data[2] +"]")) {
-                            bw.write(line +"\n");
-                            counter++;
-                        }
-                    }
-                    bw.close();
-                    System.out.println("Successfully created file with " +counter +" entries!");
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-        t2.start();
-    }
-
-    public void searchAllAndSaveUserMessages(TwitchClient twitchClient, String [] data) {
-
-        Thread t6 = new Thread(() -> {
-            String username = data[1];
-            String path = "userLogs/" +getUserID(twitchClient, username)+".txt";
-            BufferedWriter bw;
-            int counter = 0;
-
-            try {
-                bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("searchedUsers/" +username +" in all.txt"), StandardCharsets.UTF_8));
-
-                try {
-                    BufferedReader br = new BufferedReader(new FileReader(String.valueOf(path)));
-                    String line;
-
-                    while ((line = br.readLine()) != null) {
-                        bw.write(line +"\n");
-                        counter++;
-                    }
-                    bw.close();
-                    System.out.println("Successfully created file with " +counter +" entries!");
-                }
-                catch (FileNotFoundException e) {
-                    System.out.println("No file found for user " +username +", the bot hasn't caught any of their messages yet!");
-                }
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
-        t6.start();
-    }
-
     public void getUptime() {
 
         long current = System.currentTimeMillis()-startTimestamp;
@@ -579,7 +511,7 @@ public class mainFile {
             System.err.println( e.getClass().getName()+": "+ e.getMessage() );
         }
 
-        String commands = "start (st), join (j), leave (l), joined (jd), search (s), " +
+        String commands = "start (st), join (j), leave (l), joined (jd), " +
                 "searchAll (sA), track (t), cancelTrack (cT), trackStatus (tS), 10AVG (avg), " +
                 "addHours (aH), setPrefix (sP), totalViewers (tV), totalMessages (tM), uptime (ut), " +
                 "setavglimit (sal), getUserSize (gus), getLastMessageCount (glmc), " +
@@ -649,16 +581,6 @@ public class mainFile {
                                     System.out.println(s);
                                 }
                                 System.out.println("Total Count: " +joinedChannels.size());
-                                break;
-                            case "search": case "s":
-                                if(split.length == 3) {
-                                    object.searchAndSaveUserMessages(twitchClient, split);
-                                }
-                                break;
-                            case "searchAll": case "sA":
-                                if(split.length == 2) {
-                                    object.searchAllAndSaveUserMessages(twitchClient, split);
-                                }
                                 break;
                             case "track": case "t":
                                 if(split.length == 2) {
