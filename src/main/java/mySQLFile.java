@@ -7,7 +7,6 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.sql.*;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.Statement;
 import java.time.LocalDateTime;
 
@@ -246,6 +245,11 @@ public class mySQLFile {
     }
 
     public static void main( String args[] ) throws SQLException {
+
+//        createMainTable(mainFile.c, null, "chatlogs1");
+//        createIDTable(mainFile.c, null);
+//        createSubsAndCheersTable(mainFile.c, null);
+//        createTimeoutsAndBansTable(mainFile.c, null);
 
     }
 }
