@@ -29,13 +29,31 @@ public class mySQLFile {
         stmt.close();
     }
 
-    public static void createAllTables(Connection c, Statement stmt, String channelName) throws SQLException {
+    public static void createIDTable(Connection c, Statement stmt) throws SQLException {
         stmt = c.createStatement();
-        String sql = "CREATE TABLE " +channelName +
+        String sql = "CREATE TABLE userids" +
+                " (USERID  INT PRIMARY KEY  NOT NULL," +
+                " NAME           CHAR(100)  NOT NULL) " +
+                " CHARACTER SET  utf8mb4" +
+                " COLLATE        utf8mb4_general_ci";
+        stmt.executeUpdate(sql);
+        stmt.close();
+    }
+
+    public static void createSubsAndCheersTable(Connection c, Statement stmt) throws SQLException {
+        stmt = c.createStatement();
+        String sql = "CREATE TABLE SubsAndCheers" +
                 " (USERID        INT        NOT NULL," +
-                " USERNAME       CHAR(30)   NOT NULL," +
+                " USERNAME       CHAR(50)   NOT NULL, " +
+                " CHANNELID      INT        NOT NULL, " +
                 " CHANNELNAME    CHAR(100)  NOT NULL, " +
+                " RECIPIENTID    INT        NOT NULL, " +
+                " RECIPIENTNAME  CHAR(50)   NOT NULL, " +
                 " DATE           CHAR(30)   NOT NULL, " +
+                " SUBMONTH       INT        NOT NULL, " +
+                " SUBTIER        INT        NOT NULL, " +
+                " BADGES         TEXT       NOT NULL)" +
+                " CHEERERTIER    INT        NOT NULL, " +
                 " MESSAGE        TEXT       NOT NULL)" +
                 " CHARACTER SET  utf8mb4" +
                 " COLLATE        utf8mb4_general_ci";
@@ -43,11 +61,17 @@ public class mySQLFile {
         stmt.close();
     }
 
-    public static void createIDTable(Connection c, Statement stmt) throws SQLException {
+    public static void createTimeoutsAndBansTable(Connection c, Statement stmt) throws SQLException {
         stmt = c.createStatement();
         String sql = "CREATE TABLE userids" +
-                " (USERID  INT PRIMARY KEY  NOT NULL," +
-                " NAME           CHAR(100)  NOT NULL) " +
+                " (USERID        INT        NOT NULL," +
+                " USERNAME       CHAR(50)   NOT NULL, " +
+                " CHANNELID      INT        NOT NULL, " +
+                " CHANNELNAME    CHAR(100)  NOT NULL, " +
+                " DATE           CHAR(30)   NOT NULL, " +
+                " DURATION       INT        NOT NULL, " +
+                " REASON         TEXT       NOT NULL)" +
+                " MESSAGE        TEXT       NOT NULL)" +
                 " CHARACTER SET  utf8mb4" +
                 " COLLATE        utf8mb4_general_ci";
         stmt.executeUpdate(sql);
