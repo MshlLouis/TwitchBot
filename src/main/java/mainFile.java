@@ -49,8 +49,7 @@ public class mainFile {
     static boolean printConcurrentModException = false;
     static HashMap<String,String> joinedChannelNamesAndIDs = new HashMap<>();
     static ArrayList<String> joinedChannels = new ArrayList<>();
-    static String [] blockedUsersForSubs = {"43325871","237719657","1564983"};
-    static boolean containsBlockedUser = false;
+    static List <String> blockedUsersForSubs = Arrays.asList("43325871","237719657","1564983");
 
     public static void setCredentials() throws IOException {
         ArrayList<String> list = new ArrayList<>();
@@ -163,7 +162,6 @@ public class mainFile {
 
     public void printChat(TwitchClient twitchClient) {
         twitchClient.getEventManager().onEvent(ChannelMessageEvent.class, event -> {
-
             try {
                 String out = "[" +timeFormatDate.format(LocalDateTime.now().plusHours(additionalHours)) +"] " +"[" +event.getChannel().getName() +"] [" +event.getUser().getId() +"] " +event.getUser().getName() + ": " + event.getMessage();
 
@@ -194,12 +192,7 @@ public class mainFile {
         twitchClient.getEventManager().onEvent(IRCMessageEvent.class, event -> {
             if(event.getCommandType().equals("USERNOTICE")) {
                 if(!event.getTagValue("msg-id").toString().contains("raid") && !event.getTagValue("msg-id").toString().contains("submysterygift")) {
-                    for (String s : blockedUsersForSubs) {
-                        if(event.getUserId().equals(s)) {
-                            containsBlockedUser = true;
-                        }
-                    }
-                    if(!containsBlockedUser) {
+                    if(!blockedUsersForSubs.contains(event.getUserId())) {
                         try {
                             mySQLFile.insertSubAndCheerData(c,event);
                         } catch (SQLException throwables) {
@@ -208,7 +201,6 @@ public class mainFile {
                     }
                 }
             }
-            containsBlockedUser = false;
         });
     }
 
@@ -471,7 +463,13 @@ public class mainFile {
 
         try {
             setCredentials();
-        } catch (IOException e) {
+            Class.forName("com.mysql.cj.jdbc.Driver").newInstance();
+            c = DriverManager
+                    .getConnection("jdbc:mysql://"+databaseURL,
+                            databaseUsername,databasePassword);
+            c.setAutoCommit(false);
+            System.out.println("Opened database successfully");
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
@@ -483,18 +481,6 @@ public class mainFile {
         threadCheckChannelIDs();
         startTimestamp = System.currentTimeMillis();
         object.get10SecondAverageEndless();
-
-        try {
-            Class.forName("com.mysql.cj.jdbc.Driver").newInstance();
-            c = DriverManager
-                    .getConnection("jdbc:mysql://"+databaseURL,
-                            databaseUsername,databasePassword);
-            c.setAutoCommit(false);
-            System.out.println("Opened database successfully");
-
-        } catch ( Exception e ) {
-            System.err.println( e.getClass().getName()+": "+ e.getMessage() );
-        }
 
         String commands = "start (st), join (j), leave (l), joined (jd), " +
                 "searchAll (sA), track (t), cancelTrack (cT), trackStatus (tS), 10AVG (avg), " +
