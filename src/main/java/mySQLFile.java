@@ -251,9 +251,8 @@ public class mySQLFile {
         mainFile.setCredentials();
 
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver").newInstance();
             c = DriverManager
-                    .getConnection("jdbc:mysql://"+mainFile.databaseURL,
+                    .getConnection("jdbc:mariadb://"+mainFile.databaseURL,
                             mainFile.databaseUsername,mainFile.databasePassword);
             c.setAutoCommit(false);
             System.out.println("Established connection successfully");

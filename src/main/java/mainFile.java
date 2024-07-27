@@ -463,14 +463,14 @@ public class mainFile {
 
         try {
             setCredentials();
-            Class.forName("com.mysql.cj.jdbc.Driver").newInstance();
             c = DriverManager
-                    .getConnection("jdbc:mysql://"+databaseURL,
+                    .getConnection("jdbc:mariadb://"+databaseURL,
                             databaseUsername,databasePassword);
             c.setAutoCommit(false);
             System.out.println("Opened database successfully");
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
+            System.exit(1);
         }
 
         object.printChat(twitchClient);
