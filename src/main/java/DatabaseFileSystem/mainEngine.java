@@ -7,10 +7,11 @@ import java.util.*;
 
 public class mainEngine {
 
-    static String databaseRawPath = "D:\\TwitchDatabaseTables\\2024_06_09\\Raw\\chatlogs1\\";
-    static String databaseSortedPath = "D:\\TwitchDatabaseTables\\2024_06_09\\Sorted\\";
-    static String databaseUserMessage = "D:\\TwitchDatabaseTables\\2024_06_09\\UserMessages\\";
-    static String databaseAllHours = "D:\\TwitchDatabaseTables\\2024_06_09\\Channel Hour Analysis\\all\\";
+    static String mainPath = "D:\\TwitchDatabaseTables\\2024_06_09\\";
+    static String databaseRawPath = mainPath +"Raw\\chatlogs1\\";
+    static String databaseSortedPath = mainPath +"Sorted\\";
+    static String databaseUserMessage = mainPath +"UserMessages\\";
+    static String databaseAllHours = mainPath +"Channel Hour Analysis\\all\\";
     static ArrayList<ArrayList<String>> allEntries = new ArrayList<>();
     static ArrayList<String> userMessages = new ArrayList<>();
     static DecimalFormat df = new DecimalFormat("###.###");
@@ -146,12 +147,12 @@ public class mainEngine {
         }
     }
 
-    private static int [] countMessagesByHour(String userID, String currUserName, boolean print) throws IOException {
+    private static int [] countMessagesByHour(String userID, String currUserName, String path, boolean print) throws IOException {
 
         int [] allCounts = new int[24];
         double total = 0;
 
-        try (FileInputStream fis = new FileInputStream(databaseUserMessage +userID +"," +currUserName +".txt");
+        try (FileInputStream fis = new FileInputStream(path +userID +"," +currUserName +".txt");
              InputStreamReader isr = new InputStreamReader(fis, StandardCharsets.UTF_8);
              BufferedReader br = new BufferedReader(isr)) {
 
@@ -170,21 +171,29 @@ public class mainEngine {
         return allCounts;
     }
 
-    private static void calculateAllHoursForChannel(String [] ids, String currUserName) throws IOException {
-
+    private static void createStreamerProfile(String userID, String channelName) throws IOException {
         int [] allCounts = new int [24];
         double total = 0;
 
-        for(int i = 0; i<ids.length; i++) {
-        //    printIDMessagesToFile(ids[i], null, new LinkedList<>());
-            int [] temp = countMessagesByHour(ids[i], currUserName, false);
+        int [] temp = countMessagesByHour(userID, channelName, mainPath,false);
 
-            for(int k = 0; k<24; k++) {
-                allCounts[k] += temp[k];
-                total += temp[k];
+        for(int k = 0; k<24; k++) {
+            allCounts[k] += temp[k];
+            total += temp[k];
+        }
+        createProfileFile(channelName, allCounts, total);
+    }
+
+    private static void createProfileFile(String channelName, int[] allCounts, double total) throws IOException{
+
+        try (FileOutputStream fos = new FileOutputStream(mainPath +channelName +" profile.txt");
+             OutputStreamWriter osw = new OutputStreamWriter(fos, StandardCharsets.UTF_8);
+             BufferedWriter bw = new BufferedWriter(osw)) {
+
+            for (int i : allCounts) {
+                bw.write(df.format(i/total*100) +"\n");
             }
         }
-        printHours(allCounts, total);
     }
 
     private static void printHours(int[] allCounts, double total) {
@@ -234,7 +243,7 @@ public class mainEngine {
 
     private static double calcHoursDifferences (String userID, String currUserName, String channelname) throws IOException {
 
-        int [] allHours = countMessagesByHour(userID, currUserName, false);
+        int [] allHours = countMessagesByHour(userID, currUserName, databaseUserMessage,false);
         double total = calcTotal(allHours);
         double [] percentagesUser = calcPercentages(allHours, total);
         ArrayList <Double> percentagesChannel = new ArrayList<>();
@@ -317,8 +326,8 @@ public class mainEngine {
     public static void main(String[] args) throws IOException {
 
         String [] items = {};
-        String userID = "542833128";
-        String userName = "nme300";
+        String userID = "";
+        String userName = "";
         List<String> excluded = new LinkedList<>(Arrays.asList(items));
 
         for(int i = 0; i<1000; i++) {
@@ -326,13 +335,13 @@ public class mainEngine {
         }
 
 //        addLogsToDirectory("chatlogs1_37().csv");
-//        calculateAllHoursForChannel(new String[]{"basti"});
+//        createStreamerProfile("","");
 //        countAllChannelMessages();
 //
 //
 //        printIDMessagesToFile(userID, userName,null, excluded);
 //        countChannelMessages(userID);
-//        countMessagesByHour(userID, userName, true);
+//        countMessagesByHour(userID, userName, databaseUserMessage,true);
 //        calcAllHourDifferences(userID, userName);
     }
 }
