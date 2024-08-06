@@ -160,37 +160,36 @@ public class mainFile {
         System.out.println("Left channel " +channelName);
     }
 
-    public void printChat(TwitchClient twitchClient) {
-        twitchClient.getEventManager().onEvent(ChannelMessageEvent.class, event -> {
-            try {
-                String out = "[" +timeFormatDate.format(LocalDateTime.now().plusHours(additionalHours)) +"] " +"[" +event.getChannel().getName() +"] [" +event.getUser().getId() +"] " +event.getUser().getName() + ": " + event.getMessage();
+    public void detectIRCMessageEvent(TwitchClient twitchClient) {
+        twitchClient.getEventManager().onEvent(IRCMessageEvent.class, event -> {
 
-                mySQLFile.insertData(c, event, currentTableName+currentTableInt);
-                mySQLFile.insertDataIDs(c, event);
-                addHashMapEntry(event.getMessage(), event.getUser().getId());
+            if(event.getCommandType().equals("PRIVMSG")) {
+                try {
 
-                totalMessageCount.getAndIncrement();
-                if(tracking && event.getUser().getName().equals(trackedUser)) {
-                    System.out.println(out);
-                }
-            }
-            catch (SQLException e) {
-                if(e.getMessage().contains("full")) {
-                    System.out.println(e.getMessage());
-                    currentTableInt++;
-                    try {
-                        mySQLFile.createMainTable(c, stmt, currentTableName+currentTableInt);
-                    } catch (SQLException throwables) {
-                        throwables.printStackTrace();
+                    String out = "[" + timeFormatDate.format(LocalDateTime.now().plusHours(additionalHours)) + "] " + "[" + event.getChannel().getName() + "] [" + event.getUser().getId() + "] " + event.getUser().getName() + ": " + event.getMessage();
+
+                    mySQLFile.insertData(c, event, currentTableName + currentTableInt);
+                    mySQLFile.insertDataIDs(c, event);
+                    addHashMapEntry(event.getMessage().orElse(null), event.getUser().getId());
+
+                    totalMessageCount.getAndIncrement();
+                    if (tracking && event.getUser().getName().equals(trackedUser)) {
+                        System.out.println(out);
+                    }
+
+                } catch (SQLException e) {
+                    if (e.getMessage().contains("full")) {
+                        System.out.println(e.getMessage());
+                        currentTableInt++;
+                        try {
+                            mySQLFile.createMainTable(c, stmt, currentTableName + currentTableInt);
+                        } catch (SQLException throwables) {
+                            throwables.printStackTrace();
+                        }
                     }
                 }
             }
-        });
-    }
-
-    public void detectSubsAndCheers(TwitchClient twitchClient) {
-        twitchClient.getEventManager().onEvent(IRCMessageEvent.class, event -> {
-            if(event.getCommandType().equals("USERNOTICE")) {
+            else if(event.getCommandType().equals("USERNOTICE")) {
                 if(!event.getTagValue("msg-id").toString().contains("raid") && !event.getTagValue("msg-id").toString().contains("submysterygift")) {
                     if(!blockedUsersForSubs.contains(event.getUserId())) {
                         try {
@@ -203,6 +202,34 @@ public class mainFile {
             }
         });
     }
+
+//    public void printChat(TwitchClient twitchClient) {
+//        twitchClient.getEventManager().onEvent(ChannelMessageEvent.class, event -> {
+//            try {
+//                String out = "[" +timeFormatDate.format(LocalDateTime.now().plusHours(additionalHours)) +"] " +"[" +event.getChannel().getName() +"] [" +event.getUser().getId() +"] " +event.getUser().getName() + ": " + event.getMessage();
+//
+//                mySQLFile.insertData(c, event, currentTableName+currentTableInt);
+//                mySQLFile.insertDataIDs(c, event);
+//                addHashMapEntry(event.getMessage(), event.getUser().getId());
+//
+//                totalMessageCount.getAndIncrement();
+//                if(tracking && event.getUser().getName().equals(trackedUser)) {
+//                    System.out.println(out);
+//                }
+//            }
+//            catch (SQLException e) {
+//                if(e.getMessage().contains("full")) {
+//                    System.out.println(e.getMessage());
+//                    currentTableInt++;
+//                    try {
+//                        mySQLFile.createMainTable(c, stmt, currentTableName+currentTableInt);
+//                    } catch (SQLException throwables) {
+//                        throwables.printStackTrace();
+//                    }
+//                }
+//            }
+//        });
+//    }
 
     public void timeoutCheck(TwitchClient twitchClient) {
 
@@ -463,8 +490,9 @@ public class mainFile {
 
         try {
             setCredentials();
+            Class.forName("com.mysql.cj.jdbc.Driver").newInstance();
             c = DriverManager
-                    .getConnection("jdbc:mariadb://"+databaseURL,
+                    .getConnection("jdbc:mysql://"+databaseURL,
                             databaseUsername,databasePassword);
             c.setAutoCommit(false);
             System.out.println("Opened database successfully");
@@ -473,8 +501,7 @@ public class mainFile {
             System.exit(1);
         }
 
-        object.printChat(twitchClient);
-        object.detectSubsAndCheers(twitchClient);
+        object.detectIRCMessageEvent(twitchClient);
         object.timeoutCheck(twitchClient);
         object.banCheck(twitchClient);
         threadTimeoutMapControl();
