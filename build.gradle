@@ -18,6 +18,7 @@ dependencies {
     implementation 'org.postgresql:postgresql:42.7.3'
     implementation 'com.mysql:mysql-connector-j:9.0.0'
     implementation 'org.mariadb.jdbc:mariadb-java-client:3.4.1'
+    implementation group: 'org.slf4j', name: 'slf4j-nop', version: '2.0.13'
 }
 
 test {
