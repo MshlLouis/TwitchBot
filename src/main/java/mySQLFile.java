@@ -21,6 +21,8 @@ public class mySQLFile {
                 " USERNAME       CHAR(50)   NOT NULL, " +
                 " CHANNELID      INT        NOT NULL, " +
                 " CHANNELNAME    CHAR(100)  NOT NULL, " +
+                " COLOR          CHAR(30),            " +
+                " BADGES         TEXT,)               " +
                 " DATE           CHAR(30)   NOT NULL, " +
                 " MESSAGE        TEXT       NOT NULL)" +
                 " CHARACTER SET  utf8mb4" +
@@ -78,18 +80,21 @@ public class mySQLFile {
         stmt.close();
     }
 
-    public static void insertData(Connection c, ChannelMessageEvent event, String channelName) throws SQLException {
+    public static void insertData(Connection c, IRCMessageEvent event, String channelName) throws SQLException {
 
         String date = mainFile.timeFormatDate.format(LocalDateTime.now().plusHours(mainFile.additionalHours));
         int userid = Integer.parseInt(event.getUser().getId());
         int channelid = Integer.parseInt(event.getChannel().getId());
         String channelname = event.getChannel().getName();
         String name = event.getUser().getName();
-        String msg = event.getMessage();
+        String msg = event.getMessage().orElse("[#ERROR, CHECK PROGRAM!#]").trim();
+        String color = event.getUserChatColor().get();
+        String badges = event.getBadges().toString();
+
     //    System.out.println(user.getUsers().get(0).getBroadcasterType());
     //    System.out.println(user.getUsers().get(0).getType());
 
-        String sql = "INSERT INTO " +channelName +" (USERID,USERNAME,CHANNELID,CHANNELNAME,DATE,MESSAGE) VALUES (?,?,?,?,?,?);";
+        String sql = "INSERT INTO " +channelName +" (USERID,USERNAME,CHANNELID,CHANNELNAME,COLOR,BADGES,DATE,MESSAGE) VALUES (?,?,?,?,?,?,?,?);";
         try (PreparedStatement pstmt = c.prepareStatement(sql);) {
 
             String originalString = msg;
@@ -99,8 +104,10 @@ public class mySQLFile {
             pstmt.setString(2, name);
             pstmt.setInt(3, channelid);
             pstmt.setString(4, channelname);
-            pstmt.setString(5, date);
-            pstmt.setBytes(6, msg.getBytes(StandardCharsets.UTF_8));
+            pstmt.setString(5,color);
+            pstmt.setString(6,badges);
+            pstmt.setString(7, date);
+            pstmt.setBytes(8, msg.getBytes(StandardCharsets.UTF_8));
          //   pstmt.setBinaryStream(5,inputStream);
 
             pstmt.executeUpdate();
@@ -224,7 +231,7 @@ public class mySQLFile {
         c.commit();
     }
 
-    public static void insertDataIDs(Connection c, ChannelMessageEvent event) throws SQLException {
+    public static void insertDataIDs(Connection c, IRCMessageEvent event) throws SQLException {
 
         int id = Integer.parseInt(event.getUser().getId());
         String name = event.getUser().getName();
@@ -251,8 +258,9 @@ public class mySQLFile {
         mainFile.setCredentials();
 
         try {
+            Class.forName("com.mysql.cj.jdbc.Driver").newInstance();
             c = DriverManager
-                    .getConnection("jdbc:mariadb://"+mainFile.databaseURL,
+                    .getConnection("jdbc:mysql://"+mainFile.databaseURL,
                             mainFile.databaseUsername,mainFile.databasePassword);
             c.setAutoCommit(false);
             System.out.println("Established connection successfully");
