@@ -1,12 +1,14 @@
+package mainBot;
+
 import com.github.philippheuer.credentialmanager.domain.OAuth2Credential;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;
-import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import com.github.twitch4j.chat.events.channel.IRCMessageEvent;
 import com.github.twitch4j.chat.events.channel.UserBanEvent;
 import com.github.twitch4j.chat.events.channel.UserTimeoutEvent;
 import com.github.twitch4j.helix.domain.StreamList;
 import com.github.twitch4j.helix.domain.UserList;
+import com.netflix.hystrix.exception.HystrixRuntimeException;
 
 import java.io.*;
 import java.sql.Connection;
@@ -28,8 +30,6 @@ public class mainFile {
     static String databaseURL;
     static String databaseUsername;
     static String databasePassword;
-    static DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("HH:mm:ss");
-    static DateTimeFormatter timeFormatDate = DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm:ss");
     static AtomicLong totalMessageCount = new AtomicLong();
     static boolean locked10SecondAverage = false;
     static int additionalHours = 1;
@@ -50,6 +50,8 @@ public class mainFile {
     static HashMap<String,String> joinedChannelNamesAndIDs = new HashMap<>();
     static ArrayList<String> joinedChannels = new ArrayList<>();
     static List <String> blockedUsersForSubs = Arrays.asList("43325871","237719657","1564983");
+    static DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("HH:mm:ss");
+    public static DateTimeFormatter timeFormatDate = DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm:ss");
 
     public static void setCredentials() throws IOException {
         ArrayList<String> list = new ArrayList<>();
@@ -91,6 +93,18 @@ public class mainFile {
             return "###";
         }
         return ID;
+    }
+
+    public static long getUserCreatedAt(String userID) {
+        long createdAt;
+        try {
+            UserList user = twitchClient.getHelix().getUsers(null, Collections.singletonList(userID), null).execute();
+            createdAt = user.getUsers().get(0).getCreatedAt().toEpochMilli();
+        }
+        catch (IndexOutOfBoundsException | HystrixRuntimeException e) {
+            return -1;
+        }
+        return createdAt;
     }
 
     public static String getDisplayName(TwitchClient twitchClient, String s) {
@@ -162,10 +176,8 @@ public class mainFile {
 
     public void detectIRCMessageEvent(TwitchClient twitchClient) {
         twitchClient.getEventManager().onEvent(IRCMessageEvent.class, event -> {
-
             if(event.getCommandType().equals("PRIVMSG")) {
                 try {
-
                     String out = "[" + timeFormatDate.format(LocalDateTime.now().plusHours(additionalHours)) + "] " + "[" + event.getChannel().getName() + "] [" + event.getUser().getId() + "] " + event.getUser().getName() + ": " + event.getMessage();
 
                     mySQLFile.insertData(c, event, currentTableName + currentTableInt);
@@ -208,8 +220,8 @@ public class mainFile {
 //            try {
 //                String out = "[" +timeFormatDate.format(LocalDateTime.now().plusHours(additionalHours)) +"] " +"[" +event.getChannel().getName() +"] [" +event.getUser().getId() +"] " +event.getUser().getName() + ": " + event.getMessage();
 //
-//                mySQLFile.insertData(c, event, currentTableName+currentTableInt);
-//                mySQLFile.insertDataIDs(c, event);
+//                mainBot.mySQLFile.insertData(c, event, currentTableName+currentTableInt);
+//                mainBot.mySQLFile.insertDataIDs(c, event);
 //                addHashMapEntry(event.getMessage(), event.getUser().getId());
 //
 //                totalMessageCount.getAndIncrement();
@@ -222,7 +234,7 @@ public class mainFile {
 //                    System.out.println(e.getMessage());
 //                    currentTableInt++;
 //                    try {
-//                        mySQLFile.createMainTable(c, stmt, currentTableName+currentTableInt);
+//                        mainBot.mySQLFile.createMainTable(c, stmt, currentTableName+currentTableInt);
 //                    } catch (SQLException throwables) {
 //                        throwables.printStackTrace();
 //                    }
@@ -234,7 +246,6 @@ public class mainFile {
     public void timeoutCheck(TwitchClient twitchClient) {
 
         twitchClient.getEventManager().onEvent(UserTimeoutEvent.class, event -> {
-
             String [] arr = lastMessages.get(event.getUser().getId());
             if(arr == null) {
                 try {
@@ -534,14 +545,14 @@ public class mainFile {
                                             "derfruchtzwergtv,di1araas,edizderbreite,eliasn97,elotrix," +
                                             "elspreen,exsl95,fibii,filow,fritz_meinecke,gamerbrother," +
                                             "gebauermarc,gmhikaru,gothamchess,gronkh,handofblood," +
-                                            "honeypuu,illojuan,inscope21tv,jayzumjiggy,k4yfour,kaicenat," +
-                                            "kobrickrl,kuchentv,letshugotv,loserfruit,m0xyy,mckytv," +
-                                            "mertabimula,missmikkaa,mizkif,montanablack88,mshl_louis," +
+                                            "honeypuu,iblali,illojuan,inscope21tv,jayzumjiggy,k4yfour,kaicenat," +
+                                            "kobrickrl,kuchentv,letshugotv,loserfruit,m0xyy,mckytv,merleperle" +
+                                            "mertabimula,missmikkaa,mizkif,montanablack88,mshl_louis,niekbeats" +
                                             "nihachu,niklaswilson,ninja,nmplol,noahzett28,nooreax,ohnepixel," +
                                             "papaplatte,pietsmiet,pokelawls,pokimane,psp1g,qtcinderella," +
                                             "quitelola,realmoji,reeze,revedtv,rewinside,rezo,ronnyberger," +
                                             "rumathra,scor_china,shlorox,shurjoka,sidneyeweka,skylinetvlive," +
-                                            "sodapoppin,sparkofphoenixtv,stegi,summit1g,tanzverbot," +
+                                            "sodapoppin,sparkofphoenixtv,starletnova,stegi,summit1g,tanzverbot," +
                                             "therealknossi,tobifas_,trainwreckstv,trymacs,unsympathisch_tv," +
                                             "wichtiger,xqc,xrohat,xthesolutiontv,zackrawrr,zarbex,zastela";
                                     try {

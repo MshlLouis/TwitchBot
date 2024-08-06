@@ -3,7 +3,14 @@ package DatabaseFileSystem;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.*;
+import mainBot.mainFile;
+
+import static mainBot.mainFile.setCredentials;
 
 public class mainEngine {
 
@@ -11,7 +18,7 @@ public class mainEngine {
     static String databaseRawPath = mainPath +"Raw\\chatlogs1\\";
     static String databaseSortedPath = mainPath +"Sorted\\";
     static String databaseUserMessage = mainPath +"UserMessages\\";
-    static String databaseAllHours = mainPath +"Channel Hour Analysis\\all\\";
+    static String databaseAllHours = mainPath +"Profiles\\all\\";
     static ArrayList<ArrayList<String>> allEntries = new ArrayList<>();
     static ArrayList<String> userMessages = new ArrayList<>();
     static DecimalFormat df = new DecimalFormat("###.###");
@@ -323,25 +330,44 @@ public class mainEngine {
         }
     }
 
+    private static void printUserCreatedAt(String userID, String userName) throws IOException {
+        setCredentials();
+        long value = mainFile.getUserCreatedAt(userID);
+        if(value == -1) {
+            System.out.println("Invalid input!");
+        }
+        else {
+            String date = mainFile.timeFormatDate.
+                    format(Instant.ofEpochMilli(value).
+                            atZone(ZoneId.of("Etc/UTC")));
+            System.out.printf("Username: %s \nUserID: %s \nCreation Date: %s\n",userName,userID,date);
+        }
+    }
+
     public static void main(String[] args) throws IOException {
 
         String [] items = {};
-        String userID = "";
-        String userName = "";
+        String userID = "148654770";
+        String userName = "ninaxli";
         List<String> excluded = new LinkedList<>(Arrays.asList(items));
 
         for(int i = 0; i<1000; i++) {
             allEntries.add(i,new ArrayList<>());
         }
 
-//        addLogsToDirectory("chatlogs1_37().csv");
+
+
+//        addLogsToDirectory("chatlogs1_38().csv");
 //        createStreamerProfile("","");
 //        countAllChannelMessages();
 //
 //
+        printUserCreatedAt(userID, userName);
 //        printIDMessagesToFile(userID, userName,null, excluded);
 //        countChannelMessages(userID);
 //        countMessagesByHour(userID, userName, databaseUserMessage,true);
 //        calcAllHourDifferences(userID, userName);
+
+        System.exit(0);
     }
 }
