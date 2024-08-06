@@ -1,3 +1,5 @@
+package mainBot;
+
 public class commandInformation {
 
     public String switchMethods(String command) {

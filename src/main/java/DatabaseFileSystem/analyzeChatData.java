@@ -1,3 +1,5 @@
+package DatabaseFileSystem;
+
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.helix.domain.UserList;
 
@@ -49,8 +51,8 @@ public class analyzeChatData {
             }
         }
 
-        System.out.println(object.getDisplayName(mainFile.twitchClient, "91999919"));
-        System.out.println(object.getDisplayName(mainFile.twitchClient, "60011006"));
+        System.out.println(object.getDisplayName(mainBot.mainFile.twitchClient, "91999919"));
+        System.out.println(object.getDisplayName(mainBot.mainFile.twitchClient, "60011006"));
 */
 
 
