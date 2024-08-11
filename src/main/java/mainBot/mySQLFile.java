@@ -114,7 +114,6 @@ public class mySQLFile {
 
             pstmt.executeUpdate();
         }
-        c.commit();
     }
 
     public static void insertTimeoutData(Connection c, UserTimeoutEvent event, String lastMessage) throws SQLException {
@@ -142,7 +141,6 @@ public class mySQLFile {
 
             pstmt.executeUpdate();
         }
-        c.commit();
     }
 
     public static void insertBanData(Connection c, UserBanEvent event, String lastMessage) throws SQLException {
@@ -169,7 +167,6 @@ public class mySQLFile {
 
             pstmt.executeUpdate();
         }
-        c.commit();
     }
 
     public static void insertSubAndCheerData(Connection c, IRCMessageEvent event) throws SQLException {
@@ -206,7 +203,6 @@ public class mySQLFile {
 
             pstmt.executeUpdate();
         }
-        c.commit();
     }
 
     public static void insertAllData(Connection c, ChannelMessageEvent event, String channelName) throws SQLException {
@@ -230,7 +226,6 @@ public class mySQLFile {
 
             pstmt.executeUpdate();
         }
-        c.commit();
     }
 
     public static void insertDataIDs(Connection c, IRCMessageEvent event) throws SQLException {
@@ -251,7 +246,6 @@ public class mySQLFile {
         catch (Exception ignored) {
 
         }
-        c.commit();
     }
 
     private static Connection establishConnection() throws IOException {
@@ -264,7 +258,6 @@ public class mySQLFile {
             c = DriverManager
                     .getConnection("jdbc:mysql://"+mainFile.databaseURL,
                             mainFile.databaseUsername,mainFile.databasePassword);
-            c.setAutoCommit(false);
             System.out.println("Established connection successfully");
         } catch ( Exception e ) {
             System.err.println( e.getClass().getName()+": "+ e.getMessage() );
