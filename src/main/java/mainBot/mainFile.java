@@ -112,7 +112,7 @@ public class mainFile {
         return user.getUsers().get(0).getDisplayName();
     }
 
-    public static String idToDisplayName(TwitchClient twitchClient, String s) {
+    public static String idToDisplayName(String s) {
         UserList user = twitchClient.getHelix().getUsers(null, Collections.singletonList(s), null).execute();
         return user.getUsers().get(0).getDisplayName();
     }
@@ -176,7 +176,8 @@ public class mainFile {
 
     public void detectIRCMessageEvent(TwitchClient twitchClient) {
         twitchClient.getEventManager().onEvent(IRCMessageEvent.class, event -> {
-            if(event.getCommandType().equals("PRIVMSG")) {
+            String eventType = event.getCommandType();
+            if(eventType.equals("PRIVMSG")) {
                 try {
                     String out = "[" + timeFormatDate.format(LocalDateTime.now().plusHours(additionalHours)) + "] " + "[" + event.getChannel().getName() + "] [" + event.getUser().getId() + "] " + event.getUser().getName() + ": " + event.getMessage();
 
@@ -201,8 +202,9 @@ public class mainFile {
                     }
                 }
             }
-            else if(event.getCommandType().equals("USERNOTICE")) {
-                if(!event.getTagValue("msg-id").toString().contains("raid") && !event.getTagValue("msg-id").toString().contains("submysterygift")) {
+            else if(eventType.equals("USERNOTICE")) {
+                String tagValues = event.getTagValue("msg-id").toString();
+                if(!tagValues.contains("raid") && !tagValues.contains("submysterygift")) {
                     if(!blockedUsersForSubs.contains(event.getUserId())) {
                         try {
                             mySQLFile.insertSubAndCheerData(c,event);
@@ -257,7 +259,7 @@ public class mainFile {
             else {
                 String lastMsg = arr[1];
                 try {
-                    mySQLFile.insertTimeoutData(c, event, lastMsg);
+                    mySQLFile.insertTimeoutData(c, event, lastMsg.trim());
                 } catch (SQLException throwables) {
                     throwables.printStackTrace();
                 }
@@ -352,11 +354,11 @@ public class mainFile {
     public static void checkChannelnameIDsMethod() {
 
         for(Map.Entry<String,String> m : joinedChannelNamesAndIDs.entrySet()) {
-            String ID = getUserID(twitchClient, m.getValue());
+            String name = idToDisplayName(m.getKey()).toLowerCase();
 
-            if(ID.equals("###")) {
+            if(!name.equals(m.getValue().toLowerCase())) {
                 joinedChannels.remove(m.getValue());
-                String newName = idToDisplayName(twitchClient,m.getKey()).toLowerCase(Locale.ROOT);
+                String newName = idToDisplayName(m.getKey()).toLowerCase(Locale.ROOT);
                 System.out.println("Detected change in username for user: " +m.getValue()
                         +"\nChanged name to " +newName);
                 joinedChannelNamesAndIDs.put(m.getKey(),newName);
@@ -364,7 +366,7 @@ public class mainFile {
                 twitchClient.getChat().joinChannel(newName);
 
                 try {
-                    StreamList resultList = twitchClient.getHelix().getStreams(null, null, null, 1, null, null, Collections.singletonList(ID), null).execute();
+                    StreamList resultList = twitchClient.getHelix().getStreams(null, null, null, 1, null, null, Collections.singletonList(m.getKey()), null).execute();
                     System.out.println("Joined " +getDisplayName(twitchClient, newName)  +" with " +resultList.getStreams().get(0).getViewerCount() +" Viewers!");
                 }
                 catch (IndexOutOfBoundsException e) {
@@ -488,6 +490,10 @@ public class mainFile {
         System.out.println("---------------------");
     }
 
+    public static void  setCurrentTableInt(int number) {
+        currentTableInt = number;
+    }
+
     public void getCommandInfo(String commandName) {
 
         commandInformation objectCommands = new commandInformation();
@@ -505,7 +511,6 @@ public class mainFile {
             c = DriverManager
                     .getConnection("jdbc:mysql://"+databaseURL,
                             databaseUsername,databasePassword);
-            c.setAutoCommit(false);
             System.out.println("Opened database successfully");
         } catch (Exception e) {
             e.printStackTrace();
@@ -546,15 +551,16 @@ public class mainFile {
                                             "elspreen,exsl95,fibii,filow,fritz_meinecke,gamerbrother," +
                                             "gebauermarc,gmhikaru,gothamchess,gronkh,handofblood," +
                                             "honeypuu,iblali,illojuan,inscope21tv,jayzumjiggy,k4yfour,kaicenat," +
-                                            "kobrickrl,kuchentv,letshugotv,loserfruit,m0xyy,mckytv,merleperle" +
-                                            "mertabimula,missmikkaa,mizkif,montanablack88,mshl_louis,niekbeats" +
+                                            "kobrickrl,kuchentv,letshugotv,loserfruit,m0xyy,mckytv,merleperle," +
+                                            "mertabimula,missmikkaa,mizkif,montanablack88,mshl_louis,niekbeats," +
                                             "nihachu,niklaswilson,ninja,nmplol,noahzett28,nooreax,ohnepixel," +
                                             "papaplatte,pietsmiet,pokelawls,pokimane,psp1g,qtcinderella," +
                                             "quitelola,realmoji,reeze,revedtv,rewinside,rezo,ronnyberger," +
-                                            "rumathra,scor_china,shlorox,shurjoka,sidneyeweka,skylinetvlive," +
-                                            "sodapoppin,sparkofphoenixtv,starletnova,stegi,summit1g,tanzverbot," +
-                                            "therealknossi,tobifas_,trainwreckstv,trymacs,unsympathisch_tv," +
-                                            "wichtiger,xqc,xrohat,xthesolutiontv,zackrawrr,zarbex,zastela";
+                                            "rumathra,rumathrawrr,scor_china,scurrows,shlorox,shurjoka,sidneyeweka," +
+                                            "skylinetvlive,sodapoppin,sparkofphoenixtv,starletnova,stegi," +
+                                            "summit1g,tanzverbot,therealknossi,tobifas_,trainwreckstv,trymacs," +
+                                            "unsympathisch_tv,wichtiger,xqc,xrohat,xthesolutiontv,zackrawrr," +
+                                            "zarbex,zastela";
                                     try {
                                         joinChannel(twitchClient, pref, object);
                                     } catch (SQLException throwables) {
@@ -670,6 +676,11 @@ public class mainFile {
                                         printConcurrentModException = true;
                                         System.out.println("Set boolean \"printConcurrentModException\" to true");
                                     }
+                                }
+                                break;
+                            case "scti":
+                                if(split.length == 2) {
+                                    setCurrentTableInt(Integer.parseInt(split[1]));
                                 }
                                 break;
                             case "commands": case "cmds":
